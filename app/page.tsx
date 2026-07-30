@@ -79,14 +79,14 @@ export default async function HomePage() {
                         ))}
                     {gear.map((item) => (
                         <Link
-                            key={item._id || item.id}
-                            href={`/gear/${item._id || item.id}`}
+                            key={item.id || item.id}
+                            href={`/gear/${item.id}`}
                             className="bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition group"
                         >
                             <div className="h-44 bg-gray-200 flex items-center justify-center text-gray-400 text-sm relative">
-                                {item.images?.[0] ? (
+                                {item.imageUrl ? (
                                     <Image
-                                        src={item.images[0]}
+                                        src={item.imageUrl}
                                         alt={item.name}
                                         fill
                                         className="object-cover"
@@ -110,7 +110,7 @@ export default async function HomePage() {
                                 </p>
                                 <div className="mt-3 flex items-center justify-between">
                                     <span className="text-indigo-700 font-bold">
-                                        ${item.pricePerDay}
+                                        ${item.dailyRentalPrice}
                                         <span className="text-sm font-normal text-gray-500">
                                             /day
                                         </span>

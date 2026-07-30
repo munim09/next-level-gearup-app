@@ -2,7 +2,7 @@
 
 import type { Category } from "@/lib/types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 export default function GearFilter({ categories }: { categories: Category[] }) {
     const pathname = usePathname();
@@ -14,32 +14,77 @@ export default function GearFilter({ categories }: { categories: Category[] }) {
     const [maxPrice, setMaxPrice] = useState(sp.get("maxPrice") || "");
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    const [isPending, startTransition] = useTransition();
+
+    // function handleCategoryChange(catId: string) {
+    //     const params = new URLSearchParams(sp.toString());
+    //     if (catId && catId !== currentCategory) {
+    //         params.set("category", catId);
+    //     } else {
+    //         params.delete("category");
+    //     }
+    //     params.delete("page");
+    //     router.push(`${pathname}?${params.toString()}`);
+    // }
+
     function handleCategoryChange(catId: string) {
         const params = new URLSearchParams(sp.toString());
+
         if (catId && catId !== currentCategory) {
             params.set("category", catId);
         } else {
             params.delete("category");
         }
+
         params.delete("page");
-        router.push(`${pathname}?${params.toString()}`);
+
+        startTransition(() => {
+            router.push(`${pathname}?${params.toString()}`);
+        });
     }
+
+    // function applyPriceFilters() {
+    //     const params = new URLSearchParams(sp.toString());
+    //     if (minPrice) params.set("minPrice", minPrice);
+    //     else params.delete("minPrice");
+    //     if (maxPrice) params.set("maxPrice", maxPrice);
+    //     else params.delete("maxPrice");
+    //     params.delete("page");
+    //     router.push(`${pathname}?${params.toString()}`);
+    //     setSidebarOpen(false);
+    // }
 
     function applyPriceFilters() {
         const params = new URLSearchParams(sp.toString());
+
         if (minPrice) params.set("minPrice", minPrice);
         else params.delete("minPrice");
+
         if (maxPrice) params.set("maxPrice", maxPrice);
         else params.delete("maxPrice");
+
         params.delete("page");
-        router.push(`${pathname}?${params.toString()}`);
+
+        startTransition(() => {
+            router.push(`${pathname}?${params.toString()}`);
+        });
+
         setSidebarOpen(false);
     }
+
+    // function clearFilters() {
+    //     setMinPrice("");
+    //     setMaxPrice("");
+    //     router.push(pathname);
+    // }
 
     function clearFilters() {
         setMinPrice("");
         setMaxPrice("");
-        router.push(pathname);
+
+        startTransition(() => {
+            router.push(pathname);
+        });
     }
 
     const hasFilters = currentCategory || minPrice || maxPrice;
@@ -81,8 +126,11 @@ export default function GearFilter({ categories }: { categories: Category[] }) {
                                     <input
                                         type="radio"
                                         name="category"
+                                        disabled={isPending}
                                         checked={currentCategory === cat.id}
-                                        onChange={() => handleCategoryChange(cat.id)}
+                                        onChange={() =>
+                                            handleCategoryChange(cat.id)
+                                        }
                                         className="accent-indigo-600"
                                     />
                                     {cat.name}
@@ -98,6 +146,7 @@ export default function GearFilter({ categories }: { categories: Category[] }) {
                                 type="number"
                                 placeholder="Min"
                                 value={minPrice}
+                                disabled={isPending}
                                 onChange={(e) => setMinPrice(e.target.value)}
                                 className="w-full border rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />

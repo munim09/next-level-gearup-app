@@ -39,6 +39,8 @@ export default async function GearDetailPage({
         fetchReviews(id),
     ]);
 
+    // console.log("gear", gear);
+    // console.log("reviews", reviews);
     if (!gear) notFound();
 
     const avgRating =
@@ -47,25 +49,34 @@ export default async function GearDetailPage({
             : 0;
     const catName = getCatName(gear.category);
 
+    console.log("gear", gear);
+    console.log("price", gear.dailyRentalPrice);
+
     return (
         <div className="flex flex-col min-h-full">
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
                 <nav className="text-sm text-gray-500 mb-6">
-                    <Link href="/" className="hover:text-indigo-600">Home</Link>
+                    <Link href="/" className="hover:text-indigo-600">
+                        Home
+                    </Link>
                     <span className="mx-2">/</span>
-                    <Link href="/gear" className="hover:text-indigo-600">Gear</Link>
+                    <Link href="/gear" className="hover:text-indigo-600">
+                        Gear
+                    </Link>
                     <span className="mx-2">/</span>
-                    <span className="text-gray-800 font-medium">{gear.name}</span>
+                    <span className="text-gray-800 font-medium">
+                        {gear.name}
+                    </span>
                 </nav>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div>
                         <div className="h-80 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400 text-sm relative overflow-hidden">
-                            {gear.images?.[0] ? (
+                            {gear.imageUrl ? (
                                 <Image
-                                    src={gear.images[0]}
+                                    src={gear.imageUrl}
                                     alt={gear.name}
                                     fill
                                     className="object-cover"
@@ -75,22 +86,17 @@ export default async function GearDetailPage({
                                 "Gear Image"
                             )}
                         </div>
-                        {gear.images && gear.images.length > 1 && (
+                        {gear.imageUrl && (
                             <div className="flex gap-2 mt-3">
-                                {gear.images.map((img, i) => (
-                                    <div
-                                        key={i}
-                                        className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden relative flex-shrink-0"
-                                    >
-                                        <Image
-                                            src={img}
-                                            alt={`${gear.name} ${i + 1}`}
-                                            fill
-                                            className="object-cover"
-                                            sizes="64px"
-                                        />
-                                    </div>
-                                ))}
+                                <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden relative flex-shrink-0">
+                                    <Image
+                                        src={gear.imageUrl}
+                                        alt={`${gear.name}`}
+                                        fill
+                                        className="object-cover"
+                                        sizes="64px"
+                                    />
+                                </div>
                             </div>
                         )}
                     </div>
@@ -99,19 +105,25 @@ export default async function GearDetailPage({
                         <span className="text-xs px-2 py-1 rounded bg-indigo-100 text-indigo-700 font-medium">
                             {catName}
                         </span>
-                        <h1 className="text-2xl md:text-3xl font-bold mt-3">{gear.name}</h1>
+                        <h1 className="text-2xl md:text-3xl font-bold mt-3">
+                            {gear.name}
+                        </h1>
                         {gear.brand && (
                             <p className="text-gray-500 mt-1">{gear.brand}</p>
                         )}
 
                         <div className="flex items-center gap-3 mt-4">
                             <span className="text-3xl font-bold text-indigo-700">
-                                ${gear.pricePerDay}
-                                <span className="text-lg font-normal text-gray-500">/day</span>
+                                ${gear.dailyRentalPrice}
+                                <span className="text-lg font-normal text-gray-500">
+                                    /day
+                                </span>
                             </span>
                             {reviews.length > 0 && (
                                 <span className="flex items-center gap-1 text-sm text-gray-500">
-                                    <StarRating rating={Math.round(avgRating)} />
+                                    <StarRating
+                                        rating={Math.round(avgRating)}
+                                    />
                                     ({reviews.length})
                                 </span>
                             )}
@@ -120,29 +132,41 @@ export default async function GearDetailPage({
                         <div className="mt-6 space-y-3">
                             {gear.location && (
                                 <p className="text-sm text-gray-600">
-                                    <span className="font-medium">Location:</span> {gear.location}
+                                    <span className="font-medium">
+                                        Location:
+                                    </span>{" "}
+                                    {gear.location}
                                 </p>
                             )}
-                            {gear.stock !== undefined && (
+                            {gear.stockQuantity !== undefined && (
                                 <p className="text-sm text-gray-600">
                                     <span className="font-medium">Stock:</span>{" "}
-                                    {gear.stock > 0 ? (
-                                        <span className="text-green-600">{gear.stock} available</span>
+                                    {gear.stockQuantity > 0 ? (
+                                        <span className="text-green-600">
+                                            {gear.stockQuantity} available
+                                        </span>
                                     ) : (
-                                        <span className="text-red-500">Out of stock</span>
+                                        <span className="text-red-500">
+                                            Out of stock
+                                        </span>
                                     )}
                                 </p>
                             )}
                             {gear.provider && (
                                 <p className="text-sm text-gray-600">
-                                    <span className="font-medium">Provider:</span> {gear.provider.name}
+                                    <span className="font-medium">
+                                        Provider:
+                                    </span>{" "}
+                                    {gear.provider.name}
                                 </p>
                             )}
                         </div>
 
                         {gear.description && (
                             <div className="mt-6">
-                                <h2 className="font-semibold mb-2">Description</h2>
+                                <h2 className="font-semibold mb-2">
+                                    Description
+                                </h2>
                                 <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
                                     {gear.description}
                                 </p>
@@ -150,7 +174,10 @@ export default async function GearDetailPage({
                         )}
 
                         <div className="mt-8">
-                            <RentButton gearId={gear._id || gear.id!} inStock={(gear.stock ?? 0) > 0} />
+                            <RentButton
+                                gearId={gear.id!}
+                                inStock={(gear.stockQuantity ?? 0) > 0}
+                            />
                         </div>
                     </div>
                 </div>
@@ -160,24 +187,32 @@ export default async function GearDetailPage({
                         Reviews ({reviews.length})
                     </h2>
                     {reviews.length === 0 ? (
-                        <p className="text-gray-500 text-sm">No reviews yet. Be the first to review!</p>
+                        <p className="text-gray-500 text-sm">
+                            No reviews yet. Be the first to review!
+                        </p>
                     ) : (
                         <div className="space-y-5">
                             {reviews.map((review) => (
                                 <div
-                                    key={review._id}
+                                    key={review.id}
                                     className="bg-white border rounded-xl p-5"
                                 >
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2">
                                             <div className="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-xs font-bold">
-                                                {review.user.name.charAt(0).toUpperCase()}
+                                                {review.customer.name
+                                                    .charAt(0)
+                                                    .toUpperCase()}
                                             </div>
-                                            <span className="font-medium text-sm">{review.user.name}</span>
+                                            <span className="font-medium text-sm">
+                                                {review.customer.name}
+                                            </span>
                                         </div>
                                         <StarRating rating={review.rating} />
                                     </div>
-                                    <p className="text-sm text-gray-600">{review.comment}</p>
+                                    <p className="text-sm text-gray-600">
+                                        {review.comment}
+                                    </p>
                                 </div>
                             ))}
                         </div>

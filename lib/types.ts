@@ -1,33 +1,45 @@
 import { JwtPayload } from "jsonwebtoken";
 
 export interface GearItem {
-    _id: string;
     id?: string;
     name: string;
-    pricePerDay: number;
+    dailyRentalPrice: number;
     brand?: string;
     category?: { name: string } | string;
-    images?: string[];
-    stock?: number;
+    imageUrl?: string;
+    stockQuantity?: number;
 }
 
 export interface GearDetail extends GearItem {
     description?: string;
     location?: string;
     provider?: {
-        _id: string;
+        id: string;
         name: string;
         email: string;
     };
-    category?: { _id: string; name: string };
+    category?: { id: string; name: string };
+}
+
+export interface ReviewCustomerProfile {
+    profilePhoto: string | null;
+}
+
+export interface ReviewCustomer {
+    id: string;
+    name: string;
+    profile: ReviewCustomerProfile | null;
 }
 
 export interface Review {
-    _id: string;
+    id: string;
+    customerId: string;
+    gearId: string;
     rating: number;
     comment: string;
-    user: { _id: string; name: string };
     createdAt: string;
+    updatedAt: string;
+    customer: ReviewCustomer;
 }
 
 export interface PaginationInfo {
