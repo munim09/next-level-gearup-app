@@ -104,7 +104,7 @@ export async function proxy(request: NextRequest) {
     }
 
     // Authorization : Role based access control
-    if (pathname.startsWith("/dashboard") && userRole !== "CUSTOMER") {
+    if (pathname.startsWith("/dashboard/customer") && userRole !== "CUSTOMER") {
         return NextResponse.redirect(new URL("/not-found", request.url));
     } else if (
         pathname.startsWith("/dashboard/admin") &&

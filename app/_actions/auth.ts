@@ -102,6 +102,8 @@ export async function login(
         errors.password = ["Password must be at least 6 characters"];
     }
 
+    let authRole: string = "";
+
     if (Object.keys(errors).length > 0) {
         return {
             success: false,
@@ -159,6 +161,8 @@ export async function login(
                 email: string;
                 role: string;
             };
+
+            authRole = userData.role;
             cookieStore.set(
                 "authUser",
                 JSON.stringify({
@@ -176,18 +180,20 @@ export async function login(
             );
         }
 
-        console.log("decoded", decoded);
-        if (decoded?.success) {
-            if (decoded.data === "PROVIDER") redirect("/dashboard/provider");
-            if (decoded.data === "ADMIN") redirect("/dashboard/admin");
-        }
+        // console.log("decoded", decoded);
 
         if (modal === "modal") {
+            const userData = decoded?.data as JwtPayload & {
+                name: string;
+                email: string;
+                role: string;
+            };
             if (decoded?.success) {
                 return {
                     success: true,
                     message: "Login successful",
                     data: decoded.data as JwtPayload,
+                    role: userData?.role,
                 };
             } else {
                 return {
@@ -198,6 +204,7 @@ export async function login(
             }
         }
     } catch (error) {
+        console.log("error");
         if (error instanceof Error) {
             console.error(error.message);
         } else {
@@ -210,8 +217,16 @@ export async function login(
                 inputs: { email: email.trim() },
             };
         }
-        redirect("/?error=login_failed");
+        // redirect("/?error=login_failed");
     }
+
+    if (authRole === "PROVIDER") {
+        redirect("/dashboard/provider");
+    } else if (authRole === "ADMIN") {
+        redirect("/dashboard/admin");
+    }
+
+    // console.log("here");
 
     redirect("/");
 }

@@ -73,6 +73,7 @@ export type LoginState = {
     success: boolean;
     message: string;
     data?: JwtPayload;
+    role?: string;
     errors?: Record<string, string[]>;
     inputs?: { email: string };
 };
@@ -137,6 +138,56 @@ export interface Payment {
     createdAt: string;
     updatedAt: string;
     rentalOrder: PaymentRentalOrder;
+}
+
+export interface ProviderGear {
+    id: string;
+    providerId: string;
+    categoryId: string;
+    name: string;
+    description: string | null;
+    brand: string | null;
+    model: string | null;
+    imageUrl: string | null;
+    dailyRentalPrice: string;
+    stockQuantity: number;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    category: {
+        id: string;
+        name: string;
+    };
+}
+
+export interface ProviderOrder {
+    id: string;
+    customerId: string;
+    providerId: string;
+    rentalStartDate: string;
+    rentalEndDate: string;
+    totalAmount: string;
+    status: string;
+    note: string | null;
+    createdAt: string;
+    updatedAt: string;
+    customer: {
+        id: string;
+        name: string;
+        email: string;
+    };
+    items: RentalOrderItem[];
+}
+
+export interface GearInput {
+    categoryId: string;
+    name: string;
+    description?: string;
+    brand?: string;
+    model?: string;
+    imageUrl?: string;
+    dailyRentalPrice: number;
+    stockQuantity: number;
 }
 
 export type VerifySessionResult =

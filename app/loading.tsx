@@ -9,7 +9,7 @@ const GlobalLoading = () => {
                         Loading...
                     </h2>
                     <p className="mt-1 text-sm text-gray-500">
-                        Please wait while we prepare your content.
+                        Please wait.....
                     </p>
                 </div>
             </div>

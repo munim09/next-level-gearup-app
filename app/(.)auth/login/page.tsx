@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect } from "react";
 
-const initialState: LoginState = { success: false, message: "" };
+const initialState: LoginState = { success: false, message: "", role: "" };
 
 export default function LoginModal() {
     const router = useRouter();
@@ -17,11 +17,31 @@ export default function LoginModal() {
 
     useEffect(() => {
         if (state.success) {
+            console.log("state", state);
+            // window.dispatchEvent(new CustomEvent("auth-changed"));
+            // const timer = setTimeout(() => router.back(), 150);
+            // return () => clearTimeout(timer);
             window.dispatchEvent(new CustomEvent("auth-changed"));
-            const timer = setTimeout(() => router.back(), 150);
-            return () => clearTimeout(timer);
+            if (state.role === "PROVIDER") {
+                // window.location.href = "/dashboard/provider";
+                const timer = setTimeout(
+                    () => router.replace("/dashboard/provider"),
+                    0,
+                );
+                return () => clearTimeout(timer);
+            } else if (state.role === "ADMIN") {
+                const timer = setTimeout(
+                    () => router.replace("/dashboard/admin"),
+                    0,
+                );
+                return () => clearTimeout(timer);
+            } else {
+                const timer = setTimeout(() => router.back(), 0);
+                return () => clearTimeout(timer);
+            }
+            router.back();
         }
-    }, [state.success, router]);
+    }, [state, router]);
 
     return (
         <div
