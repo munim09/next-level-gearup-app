@@ -16,7 +16,6 @@ export interface GearDetail extends GearItem {
     provider?: {
         id: string;
         name: string;
-        email: string;
     };
     category?: { id: string; name: string };
 }
@@ -50,7 +49,7 @@ export interface PaginationInfo {
 }
 
 export interface GearListResponse {
-    data: GearItem[];
+    data: GearDetail[];
     pagination: PaginationInfo;
 }
 
@@ -82,3 +81,69 @@ export interface Category {
     id: string;
     name: string;
 }
+
+export interface RentalOrderItem {
+    id: string;
+    rentalOrderId: string;
+    gearId: string;
+    quantity: number;
+    dailyRentalPrice: string;
+    createdAt: string;
+    gear: {
+        id: string;
+        name: string;
+        imageUrl: string | null;
+        dailyRentalPrice: string;
+    };
+}
+
+export interface RentalOrder {
+    id: string;
+    customerId: string;
+    providerId: string;
+    rentalStartDate: string;
+    rentalEndDate: string;
+    totalAmount: string;
+    status: string;
+    note: string | null;
+    createdAt: string;
+    updatedAt: string;
+    provider: {
+        id: string;
+        name: string;
+        email: string;
+    };
+    items: RentalOrderItem[];
+}
+
+export interface PaymentRentalOrder {
+    id: string;
+    rentalStartDate: string;
+    rentalEndDate: string;
+    totalAmount: string;
+    status: string;
+}
+
+export interface Payment {
+    id: string;
+    tranId: string;
+    rentalOrderId: string;
+    stripePaymentIntentId: string | null;
+    amount: string;
+    currency: string;
+    meta: Record<string, unknown> | null;
+    status: string;
+    paidAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+    rentalOrder: PaymentRentalOrder;
+}
+
+export type VerifySessionResult =
+    | {
+          authenticated: true;
+          user: JwtPayload;
+      }
+    | {
+          authenticated: false;
+      };

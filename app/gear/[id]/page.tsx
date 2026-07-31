@@ -49,8 +49,8 @@ export default async function GearDetailPage({
             : 0;
     const catName = getCatName(gear.category);
 
-    console.log("gear", gear);
-    console.log("price", gear.dailyRentalPrice);
+    // console.log("gear", gear);
+    // console.log("price", gear.dailyRentalPrice);
 
     return (
         <div className="flex flex-col min-h-full">
@@ -130,14 +130,14 @@ export default async function GearDetailPage({
                         </div>
 
                         <div className="mt-6 space-y-3">
-                            {gear.location && (
+                            {/* {gear.location && (
                                 <p className="text-sm text-gray-600">
                                     <span className="font-medium">
                                         Location:
                                     </span>{" "}
                                     {gear.location}
                                 </p>
-                            )}
+                            )} */}
                             {gear.stockQuantity !== undefined && (
                                 <p className="text-sm text-gray-600">
                                     <span className="font-medium">Stock:</span>{" "}
@@ -175,8 +175,11 @@ export default async function GearDetailPage({
 
                         <div className="mt-8">
                             <RentButton
+                                // gearName={gear.name}
+                                // provider={gear.provider.name}
                                 gearId={gear.id!}
                                 inStock={(gear.stockQuantity ?? 0) > 0}
+                                stockQuantity={gear.stockQuantity}
                             />
                         </div>
                     </div>

@@ -36,7 +36,7 @@ function mapGearItem(raw: RawGear): GearItem {
     };
 }
 
-export async function fetchFeaturedGear(): Promise<GearItem[]> {
+export async function fetchFeaturedGear(): Promise<GearDetail[]> {
     try {
         const res = await fetch(`${API}/api/gear?limit=4`, {
             cache: "no-cache",
@@ -45,7 +45,9 @@ export async function fetchFeaturedGear(): Promise<GearItem[]> {
         if (!res.ok) return [];
         const body = await res.json();
         const raw: RawGear[] = body.data ?? body ?? [];
-        return raw.map(mapGearItem);
+        console.log("body.data", body.data);
+        return body.data;
+        // return raw.map(mapGearItem);
     } catch {
         return [];
     }
@@ -77,7 +79,7 @@ export async function fetchAllGear(
 
         if (p) {
             return {
-                data: raw.map(mapGearItem),
+                data: body.data,
                 pagination: {
                     total: p.total ?? Number(totalHeader) ?? raw.length,
                     page: p.page ?? reqPage,

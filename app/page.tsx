@@ -1,28 +1,12 @@
-import { fetchFeaturedGear } from "@/app/_actions/gear";
+import { fetchCategories, fetchFeaturedGear } from "@/app/_actions/gear";
+import FeaturedGear from "@/app/_components/featured-gear";
 import Footer from "@/app/_components/footer";
 import Navbar from "@/app/_components/navbar";
-import Image from "next/image";
 import Link from "next/link";
-
-function categoryColor(name: string) {
-    const colors: Record<string, string> = {
-        Cycling: "bg-indigo-100 text-indigo-700",
-        Camping: "bg-green-100 text-green-700",
-        "Water Sports": "bg-orange-100 text-orange-700",
-        Fitness: "bg-purple-100 text-purple-700",
-        "Winter Sports": "bg-red-100 text-red-700",
-        "Team Sports": "bg-yellow-100 text-yellow-700",
-    };
-    return colors[name] ?? "bg-indigo-100 text-indigo-700";
-}
-
-function getCatName(cat: { name: string } | string | undefined): string {
-    if (!cat) return "";
-    return typeof cat === "string" ? cat : cat.name;
-}
 
 export default async function HomePage() {
     const gear = await fetchFeaturedGear();
+    const categories = await fetchCategories();
 
     return (
         <div className="flex flex-col min-h-full">
@@ -62,67 +46,7 @@ export default async function HomePage() {
                         View All
                     </Link>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {gear.length === 0 &&
-                        Array.from({ length: 4 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className="bg-white rounded-xl shadow-sm border overflow-hidden animate-pulse"
-                            >
-                                <div className="h-44 bg-gray-200" />
-                                <div className="p-4 space-y-3">
-                                    <div className="h-4 w-16 bg-gray-200 rounded" />
-                                    <div className="h-5 w-40 bg-gray-200 rounded" />
-                                    <div className="h-3 w-24 bg-gray-200 rounded" />
-                                </div>
-                            </div>
-                        ))}
-                    {gear.map((item) => (
-                        <Link
-                            key={item.id || item.id}
-                            href={`/gear/${item.id}`}
-                            className="bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition group"
-                        >
-                            <div className="h-44 bg-gray-200 flex items-center justify-center text-gray-400 text-sm relative">
-                                {item.imageUrl ? (
-                                    <Image
-                                        src={item.imageUrl}
-                                        alt={item.name}
-                                        fill
-                                        className="object-cover"
-                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                    />
-                                ) : (
-                                    "Gear Image"
-                                )}
-                            </div>
-                            <div className="p-4">
-                                <span
-                                    className={`text-xs px-2 py-1 rounded ${categoryColor(getCatName(item.category))}`}
-                                >
-                                    {getCatName(item.category)}
-                                </span>
-                                <h3 className="mt-2 font-semibold text-lg group-hover:text-indigo-600 transition-colors">
-                                    {item.name}
-                                </h3>
-                                <p className="text-gray-500 text-sm">
-                                    {item.brand ?? ""}
-                                </p>
-                                <div className="mt-3 flex items-center justify-between">
-                                    <span className="text-indigo-700 font-bold">
-                                        ${item.dailyRentalPrice}
-                                        <span className="text-sm font-normal text-gray-500">
-                                            /day
-                                        </span>
-                                    </span>
-                                    <span className="text-sm border border-indigo-600 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-50">
-                                        Rent Now
-                                    </span>
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
+                <FeaturedGear gear={gear} />
             </section>
 
             {/* Categories */}
@@ -132,20 +56,13 @@ export default async function HomePage() {
                         Browse by Category
                     </h2>
                     <div className="flex flex-wrap justify-center gap-4">
-                        {[
-                            "Cycling",
-                            "Camping",
-                            "Water Sports",
-                            "Fitness",
-                            "Winter Sports",
-                            "Team Sports",
-                        ].map((cat) => (
+                        {categories.map((cat) => (
                             <Link
-                                key={cat}
-                                href={`/gear?category=${cat.toLowerCase().replace(/\s+/g, "-")}`}
+                                key={cat.id}
+                                href={`/gear?category=${cat.id}`}
                                 className="bg-indigo-50 text-indigo-700 px-5 py-2.5 rounded-full font-medium hover:bg-indigo-100 cursor-pointer"
                             >
-                                {cat}
+                                {cat.name}
                             </Link>
                         ))}
                     </div>

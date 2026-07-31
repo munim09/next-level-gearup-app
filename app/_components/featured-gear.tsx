@@ -1,12 +1,9 @@
 "use client";
 
-import { fetchAllGear } from "@/app/_actions/gear";
 import { placeRentalOrder } from "@/app/_actions/rentals";
-import { verifySession } from "@/app/_actions/session-verify";
-import type { GearDetail, PaginationInfo } from "@/lib/types";
+import type { GearDetail } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import LoginModal from "./login-modal";
@@ -35,7 +32,7 @@ function categoryColor(name: string) {
         "Winter Sports": "bg-red-100 text-red-700",
         "Team Sports": "bg-yellow-100 text-yellow-700",
     };
-    return colors[name] ?? "bg-gray-100 text-gray-700";
+    return colors[name] ?? "bg-indigo-100 text-indigo-700";
 }
 
 function getCatName(cat: { name: string } | string | undefined): string {
@@ -43,163 +40,46 @@ function getCatName(cat: { name: string } | string | undefined): string {
     return typeof cat === "string" ? cat : cat.name;
 }
 
-function GearGridSkeleton() {
-    return (
-        <div className="animate-pulse">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
-                {Array.from({ length: 8 }).map((_, i) => (
-                    <div
-                        key={i}
-                        className="bg-white rounded-xl shadow-sm border overflow-hidden"
-                    >
-                        <div className="h-44 bg-gray-200" />
-                        <div className="p-4 space-y-3">
-                            <div className="h-4 bg-gray-200 rounded w-16" />
-                            <div className="h-5 bg-gray-200 rounded w-3/4" />
-                            <div className="h-3 bg-gray-200 rounded w-1/2" />
-                            <div className="h-5 bg-gray-200 rounded w-1/3" />
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-export default function GearList({
-    params,
-}: {
-    params: Record<string, string>;
-}) {
-    const pathname = usePathname();
-    const router = useRouter();
-
-    const [gear, setGear] = useState<GearDetail[]>([]);
-    const [pagination, setPagination] = useState<PaginationInfo>({
-        total: 0,
-        page: 1,
-        limit: 12,
-        totalPages: 0,
-    });
-
-    const [loading, setLoading] = useState(true);
-    const [, startTransition] = useTransition();
-
+export default function FeaturedGear({ gear }: { gear: GearDetail[] }) {
     const [user, setUser] = useState<AuthUser | null>(null);
     const [showLogin, setShowLogin] = useState(false);
     const [rentTarget, setRentTarget] = useState<{
         gearId: string;
-        gearName?: string;
-        providerName?: string;
+        gearName: string;
+        providerName: string;
         stockQuantity?: number;
     } | null>(null);
     const [rentError, setRentError] = useState("");
     const [isPending, startRentTransition] = useTransition();
 
     useEffect(() => {
-        startTransition(() => {
+        startRentTransition(() => {
             setUser(getAuthUser());
         });
+
         const handler = () => setUser(getAuthUser());
         window.addEventListener("auth-changed", handler);
         return () => window.removeEventListener("auth-changed", handler);
     }, []);
 
-    useEffect(() => {
-        let cancelled = false;
-
-        (async () => {
-            try {
-                const res = await fetchAllGear(params);
-                if (cancelled) return;
-                setGear(res.data);
-                setPagination(res.pagination);
-            } finally {
-                if (!cancelled) {
-                    startTransition(() => {
-                        setLoading(false);
-                    });
-                }
-            }
-        })();
-
-        return () => {
-            cancelled = true;
-        };
-    }, [params]);
-
-    function goToPage(page: number) {
-        setLoading(true);
-        const search = new URLSearchParams(params);
-        if (page <= 1) {
-            search.delete("page");
-        } else {
-            search.set("page", String(page));
-        }
-        const query = search.toString();
-        router.push(query ? `${pathname}?${query}` : pathname);
-    }
-
     const openRent = useCallback(
-        async (item: GearDetail) => {
-            const session = await verifySession();
-            console.log("session", session);
-            if (!session.authenticated) {
-                router.refresh(); // refreshes server components and cookies
-
-                setUser(null);
-
-                setRentTarget({
-                    gearId: item.id!,
-                    gearName: item.name,
-                    providerName: item.provider?.name ?? "",
-                    stockQuantity: item.stockQuantity,
-                });
-
-                setShowLogin(true);
-                return;
-            }
-
-            setUser({
-                name: session?.user.name ?? "",
-                email: session?.user.email ?? "",
-                role: session?.user.role ?? "",
-            });
-
-            setRentTarget({
+        (item: GearDetail) => {
+            const target = {
                 gearId: item.id!,
                 gearName: item.name,
                 providerName: item.provider?.name ?? "",
                 stockQuantity: item.stockQuantity,
-            });
-
+            };
+            if (!user) {
+                setRentTarget(target);
+                setShowLogin(true);
+                return;
+            }
+            setRentTarget(target);
             setRentError("");
         },
-        [router],
+        [user],
     );
-
-    // const openRent = useCallback(
-    //     (item: GearDetail) => {
-    //         if (!user) {
-    //             setRentTarget({
-    //                 gearId: item.id!,
-    //                 gearName: item.name,
-    //                 providerName: item.provider?.name ?? "",
-    //                 stockQuantity: item.stockQuantity,
-    //             });
-    //             setShowLogin(true);
-    //             return;
-    //         }
-    //         setRentTarget({
-    //             gearId: item.id!,
-    //             gearName: item.name,
-    //             providerName: item.provider?.name ?? "",
-    //             stockQuantity: item.stockQuantity,
-    //         });
-    //         setRentError("");
-    //     },
-    //     [user],
-    // );
 
     function onLoginSuccess() {
         setShowLogin(false);
@@ -245,67 +125,60 @@ export default function GearList({
         });
     }
 
-    if (loading) {
-        return <GearGridSkeleton />;
-    }
-
-    if (!gear.length) {
-        return (
-            <div className="text-center py-20 text-gray-500">
-                <p className="text-lg font-medium">No gear found</p>
-                <p className="text-sm mt-1">
-                    Try adjusting your search or filters.
-                </p>
-            </div>
-        );
-    }
-
-    const currentPage = pagination.page;
-
     return (
         <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {gear.length === 0 &&
+                    Array.from({ length: 4 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="bg-white rounded-xl shadow-sm border overflow-hidden animate-pulse"
+                        >
+                            <div className="h-44 bg-gray-200" />
+                            <div className="p-4 space-y-3">
+                                <div className="h-4 w-16 bg-gray-200 rounded" />
+                                <div className="h-5 w-40 bg-gray-200 rounded" />
+                                <div className="h-3 w-24 bg-gray-200 rounded" />
+                            </div>
+                        </div>
+                    ))}
                 {gear.map((item) => (
                     <div
                         key={item.id}
                         className="bg-white rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition group"
                     >
                         <Link href={`/gear/${item.id}`} className="block">
-                            <div className="relative h-44 bg-gray-200">
+                            <div className="h-44 bg-gray-200 flex items-center justify-center text-gray-400 text-sm relative">
                                 {item.imageUrl ? (
                                     <Image
                                         src={item.imageUrl}
                                         alt={item.name}
                                         fill
                                         className="object-cover"
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                     />
                                 ) : (
-                                    <div className="flex h-full items-center justify-center text-gray-400">
-                                        Gear Image
-                                    </div>
+                                    "Gear Image"
                                 )}
                             </div>
-
                             <div className="p-4">
                                 <span
-                                    className={`text-xs px-2 py-1 rounded ${categoryColor(
-                                        getCatName(item.category),
-                                    )}`}
+                                    className={`text-xs px-2 py-1 rounded ${categoryColor(getCatName(item.category))}`}
                                 >
-                                    {getCatName(item.category) || "General"}
+                                    {getCatName(item.category)}
                                 </span>
-
-                                <h3 className="mt-2 font-semibold text-lg">
+                                <h3 className="mt-2 font-semibold text-lg group-hover:text-indigo-600 transition-colors">
                                     {item.name}
                                 </h3>
-
                                 <p className="text-gray-500 text-sm">
-                                    {item.brand}
+                                    {item.brand ?? ""}
                                 </p>
-
-                                <div className="mt-3 flex justify-between items-center">
-                                    <span className="font-bold text-indigo-700">
-                                        ${item.dailyRentalPrice}/day
+                                <div className="mt-3 flex items-center justify-between">
+                                    <span className="text-indigo-700 font-bold">
+                                        ${item.dailyRentalPrice}
+                                        <span className="text-sm font-normal text-gray-500">
+                                            /day
+                                        </span>
                                     </span>
                                 </div>
                             </div>
@@ -317,7 +190,7 @@ export default function GearList({
                                     e.preventDefault();
                                     openRent(item);
                                 }}
-                                className="w-full border border-indigo-600 text-indigo-600 rounded-lg px-3 py-1.5 font-medium hover:bg-indigo-50 transition cursor-pointer"
+                                className="w-full text-sm border border-indigo-600 text-indigo-600 px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-50 transition cursor-pointer"
                             >
                                 Rent Now
                             </button>
@@ -325,63 +198,6 @@ export default function GearList({
                     </div>
                 ))}
             </div>
-
-            {pagination.totalPages > 1 && (
-                <div className="flex flex-col items-center gap-4 mt-12">
-                    <div className="flex items-center gap-2">
-                        {currentPage > 1 && (
-                            <button
-                                onClick={() => goToPage(currentPage - 1)}
-                                className="px-3 py-2 border rounded-lg text-sm font-medium hover:bg-gray-50 cursor-pointer"
-                            >
-                                Prev
-                            </button>
-                        )}
-                        {Array.from(
-                            { length: pagination.totalPages },
-                            (_, i) => i + 1,
-                        )
-                            .filter(
-                                (p) =>
-                                    Math.abs(p - currentPage) <= 2 ||
-                                    p === 1 ||
-                                    p === pagination.totalPages,
-                            )
-                            .map((p, idx, arr) => (
-                                <span key={p} className="flex items-center">
-                                    {idx > 0 && arr[idx - 1] !== p - 1 && (
-                                        <span className="px-1 text-gray-400">
-                                            ...
-                                        </span>
-                                    )}
-                                    {p === currentPage ? (
-                                        <span className="w-9 h-9 flex items-center justify-center rounded-lg bg-indigo-600 text-white text-sm font-semibold">
-                                            {p}
-                                        </span>
-                                    ) : (
-                                        <button
-                                            onClick={() => goToPage(p)}
-                                            className="w-9 h-9 flex items-center justify-center rounded-lg border text-sm font-medium hover:bg-gray-50 cursor-pointer"
-                                        >
-                                            {p}
-                                        </button>
-                                    )}
-                                </span>
-                            ))}
-                        {currentPage < pagination.totalPages && (
-                            <button
-                                onClick={() => goToPage(currentPage + 1)}
-                                className="px-3 py-2 border rounded-lg text-sm font-medium hover:bg-gray-50 cursor-pointer"
-                            >
-                                Next
-                            </button>
-                        )}
-                    </div>
-                    <p className="text-sm text-gray-500">
-                        Showing page {currentPage} of {pagination.totalPages}
-                    </p>
-                </div>
-            )}
 
             {showLogin && (
                 <LoginModal
@@ -398,7 +214,7 @@ export default function GearList({
                     <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
                         <div className="flex items-center justify-between border-b px-6 py-4">
                             <h2 className="text-lg font-semibold">
-                                Rent: {rentTarget.gearName}
+                                Rent {rentTarget.gearName}
                             </h2>
                             <button
                                 type="button"
