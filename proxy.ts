@@ -7,7 +7,13 @@ import { NextResponse } from "next/server";
 import { jwtUtils } from "./utils/jwt";
 
 const AUTH_ROUTES = ["/auth/login", "/auth/register"];
-const PUBLIC_ROUTES = ["/", "/gear", "/gear/**"];
+const PUBLIC_ROUTES = [
+    "/",
+    "/gear",
+    "/gear/**",
+    "/payment/success",
+    "/payment/cancel",
+];
 
 // This function can be marked `async` if using `await` inside
 export async function proxy(request: NextRequest) {
