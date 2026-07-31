@@ -6,29 +6,11 @@ import { verifySession } from "@/app/_actions/session-verify";
 import Footer from "@/app/_components/footer";
 import Navbar from "@/app/_components/navbar";
 import type { RentalOrder } from "@/lib/types";
+import { statusBadgeClass } from "@/utils";
 import { redirect } from "next/navigation";
 import CustomerOrders from "../../_components/customer-orders";
 
 const ACTIVE_STATUSES = ["PLACED", "CONFIRMED", "PAID", "PICKED_UP"];
-
-export function statusBadgeClass(status: string) {
-    switch (status) {
-        case "PLACED":
-            return "bg-amber-100 text-amber-700";
-        case "CONFIRMED":
-            return "bg-blue-100 text-blue-700";
-        case "PAID":
-            return "bg-purple-100 text-purple-700";
-        case "PICKED_UP":
-            return "bg-green-100 text-green-700";
-        case "RETURNED":
-            return "bg-gray-100 text-gray-700";
-        case "CANCELLED":
-            return "bg-red-100 text-red-700";
-        default:
-            return "bg-gray-100 text-gray-700";
-    }
-}
 
 function formatDate(value: string) {
     return new Date(value).toLocaleDateString("en-US", {
@@ -182,7 +164,7 @@ export default async function CustomerDashboardPage() {
                                             Paid At
                                         </th>
                                         <th className="px-5 py-3 font-medium">
-                                            Status
+                                            Paid Status
                                         </th>
                                     </tr>
                                 </thead>

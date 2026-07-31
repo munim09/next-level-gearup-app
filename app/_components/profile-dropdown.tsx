@@ -9,7 +9,6 @@ type AuthUser = { name: string; email: string; role: string };
 export default function ProfileDropdown({ user }: { user: AuthUser }) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
-
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
             if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -48,7 +47,13 @@ export default function ProfileDropdown({ user }: { user: AuthUser }) {
             {open && (
                 <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-xl border py-2 z-50">
                     <Link
-                        href="/dashboard/customer"
+                        href={
+                            user?.role === "PROVIDER"
+                                ? "/dashboard/provider"
+                                : user?.role === "ADMIN"
+                                  ? "/dashboard/admin"
+                                  : "/dashboard/customer"
+                        }
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                         onClick={() => setOpen(false)}
                     >
@@ -65,12 +70,13 @@ export default function ProfileDropdown({ user }: { user: AuthUser }) {
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                             />
                         </svg>
-                        Profile
+                        Dashboard
                     </Link>
+
                     <form action={logout}>
                         <button
                             type="submit"
-                            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                         >
                             <svg
                                 className="w-4 h-4"

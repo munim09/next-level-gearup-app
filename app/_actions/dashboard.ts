@@ -32,7 +32,6 @@ export async function fetchCustomerRentals(): Promise<RentalOrder[]> {
         const res = await authedFetch("/api/rentals?limit=50");
         if (!res.ok) return [];
         const body = await res.json();
-        console.log("body.data ", body.data);
         return body.data ?? [];
     } catch (err) {
         const digest = (err as { digest?: string } | null)?.digest;
@@ -40,6 +39,23 @@ export async function fetchCustomerRentals(): Promise<RentalOrder[]> {
             throw err;
         }
         return [];
+    }
+}
+
+export async function fetchRentalOrder(
+    orderId: string,
+): Promise<RentalOrder | null> {
+    try {
+        const res = await authedFetch(`/api/rentals/${orderId}`);
+        if (!res.ok) return null;
+        const body = await res.json();
+        return body.data?.order ?? body.data ?? null;
+    } catch (err) {
+        const digest = (err as { digest?: string } | null)?.digest;
+        if (digest?.startsWith("NEXT_REDIRECT")) {
+            throw err;
+        }
+        return null;
     }
 }
 
@@ -75,5 +91,26 @@ export async function cancelRentalOrder(orderId: string) {
     return {
         success: true,
         message: body.message || "Order cancelled successfully.",
+    };
+}
+
+export async function initiatePayment(orderId: string) {
+    const res = await authedFetch(`/api/payments/create/${orderId}`, {
+        method: "POST",
+    });
+
+    const body = await res.json();
+
+    if (!res.ok || !body.success) {
+        return {
+            success: false,
+            message: body.message || "Failed to initiate payment.",
+        };
+    }
+
+    return {
+        success: true,
+        message: body.message || "Payment initiated",
+        data: body.data as { gatewayUrl?: string; tranId?: string },
     };
 }

@@ -45,7 +45,6 @@ export async function fetchFeaturedGear(): Promise<GearDetail[]> {
         if (!res.ok) return [];
         const body = await res.json();
         const raw: RawGear[] = body.data ?? body ?? [];
-        console.log("body.data", body.data);
         return body.data;
         // return raw.map(mapGearItem);
     } catch {

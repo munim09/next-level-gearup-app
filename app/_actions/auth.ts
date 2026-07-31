@@ -176,6 +176,12 @@ export async function login(
             );
         }
 
+        console.log("decoded", decoded);
+        if (decoded?.success) {
+            if (decoded.data === "PROVIDER") redirect("/dashboard/provider");
+            if (decoded.data === "ADMIN") redirect("/dashboard/admin");
+        }
+
         if (modal === "modal") {
             if (decoded?.success) {
                 return {
