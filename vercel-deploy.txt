@@ -94,11 +94,7 @@ Then :
 npm run build
 
 
-
-
-
-
-Command: [npm i -g vercel, vercel login, vercel --prod] 
+****Command: [npm i -g vercel, vercel login, vercel --prod] 
 
 vercel.json
 

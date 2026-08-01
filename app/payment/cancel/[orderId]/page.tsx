@@ -3,7 +3,7 @@ import { fetchOrderPaymentDetails } from "@/lib/payment-callback";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Payment Cancelled | GearUp",
+    title: "Payment Failed | GearUp",
 };
 
 export default async function PaymentCancelPage({

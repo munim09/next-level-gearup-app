@@ -42,10 +42,10 @@ export default function PaymentResult({
     success: boolean;
     details: OrderPaymentInfo | null;
 }) {
-    const heading = success ? "Payment Successful" : "Payment Cancelled";
+    const heading = success ? "Payment Successful" : "Payment Failed";
     const message = success
         ? "Your payment has been processed successfully."
-        : "The payment was not completed. No charge was made.";
+        : "";
 
     console.log("details", details);
 
