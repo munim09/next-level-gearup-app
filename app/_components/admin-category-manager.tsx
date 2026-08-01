@@ -81,7 +81,7 @@ export default function AdminCategoryManager({
                         No categories yet. Create the first one.
                     </p>
                 ) : (
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    <ul className="space-y-2">
                         {categories.map((category) => (
                             <li
                                 key={category.id}
