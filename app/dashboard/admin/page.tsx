@@ -1,5 +1,7 @@
 import { fetchAdminUsers } from "@/app/_actions/admin";
+import { fetchCategories } from "@/app/_actions/gear";
 import { verifySession } from "@/app/_actions/session-verify";
+import AdminCategoryManager from "@/app/_components/admin-category-manager";
 import AdminUserList from "@/app/_components/admin-user-list";
 import Footer from "@/app/_components/footer";
 import Navbar from "@/app/_components/navbar";
@@ -22,7 +24,10 @@ export default async function AdminDashboardPage() {
         );
     }
 
-    const users = await fetchAdminUsers();
+    const [users, categories] = await Promise.all([
+        fetchAdminUsers(),
+        fetchCategories(),
+    ]);
 
     const totalUsers = users.length;
     const customers = users.filter((u) => u.role === "CUSTOMER").length;
@@ -100,6 +105,11 @@ export default async function AdminDashboardPage() {
                     ) : (
                         <AdminUserList users={sortedUsers} />
                     )}
+                </section>
+
+                <section className="mt-10">
+                    <h2 className="text-xl font-bold mb-4">Categories</h2>
+                    <AdminCategoryManager categories={categories} />
                 </section>
             </div>
 

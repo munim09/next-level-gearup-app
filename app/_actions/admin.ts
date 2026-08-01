@@ -62,3 +62,30 @@ export async function updateUserStatus(userId: string, activeStatus: string) {
         message: body.message || "User status updated successfully.",
     };
 }
+
+export async function createCategory(input: {
+    name: string;
+    description?: string;
+}) {
+    const res = await authedFetch("/api/admin/category", {
+        method: "POST",
+        body: JSON.stringify(input),
+    });
+
+    const body = await res.json();
+
+    if (!res.ok || !body.success) {
+        return {
+            success: false,
+            message:
+                body.message ||
+                body.errors?.name?.[0] ||
+                "Failed to create category.",
+        };
+    }
+
+    return {
+        success: true,
+        message: body.message || "Category created successfully.",
+    };
+}
