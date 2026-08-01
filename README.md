@@ -22,7 +22,7 @@
 - Category management — **create categories**
 
 ### 💳 Payments
-- **Stripe** + **SSLCommerz** (no COD) with success / cancel redirect handling
+- **SSLCommerz** (no COD) with success / cancel redirect handling
 
 ## 🧱 Tech Stack
 
@@ -33,7 +33,6 @@
 | Language   | TypeScript |
 | Auth       | JWT (access + refresh), role-based route protection |
 | Notifications | sonner |
-| Lint       | ESLint 9 (flat config) |
 
 ## 🚀 Getting Started
 
@@ -62,9 +61,7 @@ Open [http://localhost:3000](http://localhost:3000).
 |---------------------|----------------------------|
 | `npm run dev`       | Start dev server           |
 | `npm run build`     | Production build           |
-| `npm start`         | Start production server    |
-| `npm run lint`      | Lint (ESLint)              |
-| `npx tsc --noEmit`  | Type check                 |
+
 
 ## 🔐 Environment Variables
 
