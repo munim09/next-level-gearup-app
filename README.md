@@ -145,63 +145,24 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ```
 assignment-frontend/
-├── app/                          # Next.js App Router
-│   ├── layout.tsx                # Root layout (providers, toaster)
-│   ├── page.tsx                  # Home page (featured gear, categories)
-│   ├── loading.tsx               # Global loading state
-│   ├── not-found.tsx             # 404 page
-│   ├── (.)auth/
-│   │   └── login/page.tsx        # Intercepting login route (modal)
-│   ├── auth/
-│   │   ├── login/page.tsx        # Login page
-│   │   └── register/page.tsx     # Register page
-│   ├── gear/
-│   │   ├── page.tsx              # Gear listing + filters
-│   │   └── [id]/page.tsx         # Gear details + reviews
-│   ├── providers/
-│   │   ├── page.tsx              # Provider list
-│   │   └── [id]/page.tsx         # Provider gear + multi-item rent
-│   ├── payment/
-│   │   ├── success/[orderId]/page.tsx
-│   │   └── cancel/[orderId]/page.tsx
+├── app/
+│   ├── (.)auth/                # Intercepting login modal route
+│   ├── auth/                   # Login & register pages
+│   ├── gear/                   # Gear listing & details
+│   ├── providers/              # Provider list & provider gear
+│   ├── payment/                # Payment success / cancel pages
 │   ├── dashboard/
-│   │   ├── customer/
-│   │   │   ├── page.tsx          # Customer dashboard
-│   │   │   └── orders/[id]/pay/page.tsx
-│   │   ├── provider/
-│   │   │   ├── page.tsx          # Provider dashboard
-│   │   │   ├── gear/new/page.tsx # Add gear form
-│   │   │   └── orders/page.tsx   # Incoming orders
-│   │   └── admin/
-│   │       └── page.tsx          # Admin dashboard (users + categories)
-│   ├── _actions/                 # Server actions (API calls)
-│   │   ├── auth.ts               # login / register
-│   │   ├── gear.ts               # gear, reviews, categories
-│   │   ├── provider.ts           # providers, provider gear & orders
-│   │   ├── rentals.ts            # place orders (single & multi-item)
-│   │   ├── dashboard.ts          # customer rentals / payments
-│   │   ├── admin.ts              # admin users & categories
-│   │   └── session-verify.ts     # JWT session verification
-│   └── _components/              # Client components
-│       ├── navbar.tsx / footer.tsx
-│       ├── gear-list.tsx / gear-filter.tsx / gear-search.tsx
-│       ├── featured-gear.tsx / rent-button.tsx
-│       ├── provider-gear-browse.tsx        # Multi-item cart
-│       ├── provider-gear-list.tsx / provider-gear-form.tsx
-│       ├── provider-orders.tsx / provider-stock-modal.tsx
-│       ├── customer-orders.tsx / pay-button.tsx / payment-result.tsx
-│       ├── admin-user-list.tsx / admin-category-manager.tsx
-│       ├── login-modal.tsx / profile-dropdown.tsx
-├── components/ui/               # shadcn/ui components
-├── lib/                         # Types, helpers, payment-callback
-│   ├── types.ts                 # Shared TypeScript interfaces
-│   └── payment-callback.ts
-├── service/refreshToken.ts      # Access token refresh logic
-├── utils/                       # JWT utils, status badge helpers
-├── proxy.ts                     # Middleware — auth & role-based route protection
-├── next.config.ts
-├── API_BACKEND.md               # Backend API documentation
-└── package.json
+│   │   ├── customer/           # Customer dashboard & order payment
+│   │   ├── provider/           # Provider dashboard, gear & orders
+│   │   └── admin/              # Admin dashboard (users & categories)
+│   ├── _actions/               # Server actions (API calls)
+│   └── _components/            # Client components
+├── components/
+│   └── ui/                     # shadcn/ui components
+├── lib/                        # Types, helpers, payment callback
+├── service/                    # Token refresh logic
+├── utils/                      # JWT & status badge helpers
+└── app/ (root files)           # layout, page, loading, not-found, proxy
 ```
 
 ## 🛡️ Role-Based Access
