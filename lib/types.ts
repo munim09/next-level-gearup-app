@@ -83,6 +83,42 @@ export interface Category {
     name: string;
 }
 
+export interface ProviderProfile {
+    id: string;
+    profilePhoto: string | null;
+    bio: string | null;
+    userId: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface AdminUser {
+    id: string;
+    name: string;
+    email: string;
+    activeStatus: string;
+    role: string;
+    createdAt: string;
+    updatedAt: string;
+    profile?: ProviderProfile | null;
+}
+
+export interface Provider {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    activeStatus: string;
+    createdAt: string;
+    updatedAt: string;
+    profile: ProviderProfile | null;
+}
+
+export interface ProviderListResponse {
+    data: Provider[];
+    pagination: PaginationInfo;
+}
+
 export interface RentalOrderItem {
     id: string;
     rentalOrderId: string;

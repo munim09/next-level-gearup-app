@@ -13,6 +13,7 @@ const PUBLIC_ROUTES = [
     "/gear/**",
     "/payment/success",
     "/payment/cancel",
+    "/providers",
 ];
 
 // This function can be marked `async` if using `await` inside

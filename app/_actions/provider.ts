@@ -1,10 +1,78 @@
 "use server";
 
-import type { GearInput, ProviderGear, ProviderOrder } from "@/lib/types";
+import type {
+    GearInput,
+    ProviderGear,
+    ProviderListResponse,
+    ProviderOrder,
+} from "@/lib/types";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 const API = process.env.NEXT_PUBLIC_BACKEND_API_URL || "";
+
+export async function fetchAllProviders(
+    params?: Record<string, string>,
+): Promise<ProviderListResponse> {
+    const empty: ProviderListResponse = {
+        data: [],
+        pagination: { total: 0, page: 1, limit: 12, totalPages: 0 },
+    };
+
+    try {
+        const qs = params ? "?" + new URLSearchParams(params).toString() : "";
+        const res = await fetch(`${API}/api/provider${qs}`, {
+            cache: "no-store",
+        });
+        if (!res.ok) return empty;
+        const body = await res.json();
+
+        const raw: ProviderListResponse["data"] = body.data ?? body ?? [];
+        const meta = body.meta ?? null;
+        const reqPage = Number(params?.page) || 1;
+        const reqLimit = Number(params?.limit) || 12;
+        const total = meta?.total ?? raw.length;
+        const limit = meta?.limit ?? reqLimit;
+        const totalPages =
+            meta?.totalPage ??
+            meta?.totalPages ??
+            (limit ? Math.ceil(total / limit) : 0);
+
+        return {
+            data: raw,
+            pagination: {
+                total,
+                page: meta?.page ?? reqPage,
+                limit,
+                totalPages,
+            },
+        };
+    } catch {
+        return empty;
+    }
+}
+
+export async function fetchProviderPublicGear(
+    providerId: string,
+): Promise<ProviderGear[]> {
+    try {
+        const res = await fetch(
+            `${API}/api/gear/provider/${providerId}?page=1&limit=1000`,
+            { cache: "no-store" },
+        );
+        if (!res.ok) return [];
+        const body = await res.json();
+        return body.data;
+    } catch (error) {
+        console.error("Fetch error:", error);
+
+        if (error instanceof Error) {
+            console.error("Message:", error.message);
+            console.error("Stack:", error.stack);
+        }
+        return [];
+    }
+}
 
 async function authedFetch(path: string, init?: RequestInit) {
     const cookieStore = await cookies();

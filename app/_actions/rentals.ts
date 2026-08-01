@@ -93,3 +93,63 @@ export async function placeRentalOrder(formData: FormData) {
 
     return result;
 }
+
+export interface RentalItemInput {
+    gearId: string;
+    quantity: number;
+}
+
+export async function placeMultiItemRentalOrder(
+    items: RentalItemInput[],
+    rentalStartDate: string,
+    rentalEndDate: string,
+    note?: string,
+) {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+
+    if (!accessToken) {
+        return {
+            success: false,
+            message: "Please login first.",
+        };
+    }
+
+    if (!items.length) {
+        return {
+            success: false,
+            message: "No gear selected.",
+        };
+    }
+
+    const body = {
+        rentalStartDate,
+        rentalEndDate,
+        note: note || undefined,
+        items,
+    };
+
+    const res = await fetch(`${API}/api/rentals`, {
+        method: "POST",
+        headers: {
+            Cookie: `accessToken=${accessToken}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        cache: "no-store",
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result?.success) {
+        return {
+            success: false,
+            message:
+                result?.message ||
+                result?.error?.message ||
+                "Failed to place rental order.",
+        };
+    }
+
+    return result;
+}
