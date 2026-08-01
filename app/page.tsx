@@ -1,6 +1,7 @@
 import { fetchCategories, fetchFeaturedGear } from "@/app/_actions/gear";
 import FeaturedGear from "@/app/_components/featured-gear";
 import Footer from "@/app/_components/footer";
+import HomeSearch from "@/app/_components/home-search";
 import Navbar from "@/app/_components/navbar";
 import Link from "next/link";
 
@@ -22,16 +23,7 @@ export default async function HomePage() {
                         Browse high-quality gear from trusted providers. Rent by
                         the day and return when you&apos;re done.
                     </p>
-                    <div className="mt-8 max-w-xl mx-auto flex gap-2">
-                        <input
-                            type="text"
-                            placeholder="Search gear by name..."
-                            className="flex-1 px-4 py-3 rounded-lg text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                        />
-                        <button className="bg-amber-400 hover:bg-amber-500 text-gray-900 font-semibold px-6 py-3 rounded-lg">
-                            Search
-                        </button>
-                    </div>
+                    <HomeSearch />
                 </div>
             </section>
 
