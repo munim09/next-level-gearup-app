@@ -12,10 +12,24 @@ export default function AdminCategoryManager({
     categories: Category[];
 }) {
     const router = useRouter();
+    const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [error, setError] = useState("");
     const [isPending, startTransition] = useTransition();
+
+    function openModal() {
+        setError("");
+        setName("");
+        setDescription("");
+        setOpen(true);
+    }
+
+    function closeModal() {
+        if (isPending) return;
+        setOpen(false);
+        setError("");
+    }
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -40,6 +54,7 @@ export default function AdminCategoryManager({
             }
 
             toast.success(result?.message ?? "Category created");
+            setOpen(false);
             setName("");
             setDescription("");
             router.refresh();
@@ -47,70 +62,26 @@ export default function AdminCategoryManager({
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl shadow-sm border p-6">
-                <h3 className="font-semibold text-lg">Add New Category</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                    Create a category to organize gear listings.
+        <>
+            <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-gray-500">
+                    {categories.length} categories
                 </p>
-
-                <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-                    <div>
-                        <label className="mb-1 block text-sm font-medium">
-                            Name
-                        </label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="e.g. Cycling"
-                            className="w-full rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="mb-1 block text-sm font-medium">
-                            Description (Optional)
-                        </label>
-                        <textarea
-                            name="description"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            rows={3}
-                            maxLength={250}
-                            placeholder="e.g. Bicycles and cycling accessories"
-                            className="w-full resize-none rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
-                        />
-                    </div>
-
-                    {error && (
-                        <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-                            {error}
-                        </div>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={isPending}
-                        className="w-full bg-indigo-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
-                    >
-                        {isPending ? "Creating..." : "Create Category"}
-                    </button>
-                </form>
+                <button
+                    onClick={openModal}
+                    className="bg-indigo-600 text-white text-sm px-5 py-2 rounded-lg font-medium hover:bg-indigo-700 cursor-pointer"
+                >
+                    + Add Category
+                </button>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border p-6">
-                <h3 className="font-semibold text-lg">
-                    Existing Categories ({categories.length})
-                </h3>
-
                 {categories.length === 0 ? (
-                    <p className="text-sm text-gray-500 mt-4">
+                    <p className="text-sm text-gray-500">
                         No categories yet. Create the first one.
                     </p>
                 ) : (
-                    <ul className="mt-4 space-y-2">
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                         {categories.map((category) => (
                             <li
                                 key={category.id}
@@ -127,6 +98,90 @@ export default function AdminCategoryManager({
                     </ul>
                 )}
             </div>
-        </div>
+
+            {open && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) closeModal();
+                    }}
+                >
+                    <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
+                        <div className="flex items-center justify-between border-b px-6 py-4">
+                            <h2 className="text-lg font-semibold">
+                                Add New Category
+                            </h2>
+                            <button
+                                type="button"
+                                onClick={closeModal}
+                                className="text-2xl text-gray-400 hover:text-gray-600"
+                            >
+                                &times;
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-5 p-6">
+                            <div>
+                                <label className="mb-1 block text-sm font-medium">
+                                    Name
+                                </label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="e.g. Cycling"
+                                    autoFocus
+                                    className="w-full rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="mb-1 block text-sm font-medium">
+                                    Description (Optional)
+                                </label>
+                                <textarea
+                                    name="description"
+                                    value={description}
+                                    onChange={(e) =>
+                                        setDescription(e.target.value)
+                                    }
+                                    rows={3}
+                                    maxLength={250}
+                                    placeholder="e.g. Bicycles and cycling accessories"
+                                    className="w-full resize-none rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
+                                />
+                            </div>
+
+                            {error && (
+                                <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+                                    {error}
+                                </div>
+                            )}
+
+                            <div className="flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={closeModal}
+                                    disabled={isPending}
+                                    className="flex-1 rounded-lg border py-2 font-medium hover:bg-gray-50 cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isPending}
+                                    className="flex-1 rounded-lg bg-indigo-600 py-2 font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+                                >
+                                    {isPending
+                                        ? "Creating..."
+                                        : "Create Category"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
