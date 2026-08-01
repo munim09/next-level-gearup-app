@@ -3,7 +3,6 @@
 import type {
     Category,
     GearDetail,
-    GearItem,
     GearListResponse,
     Review,
 } from "@/lib/types";
@@ -24,18 +23,6 @@ interface RawGear {
     [key: string]: unknown;
 }
 
-function mapGearItem(raw: RawGear): GearItem {
-    return {
-        id: raw.id,
-        name: raw.name,
-        dailyRentalPrice: Number(raw.dailyRentalPrice),
-        brand: raw.brand ?? undefined,
-        category: raw.category,
-        imageUrl: raw.imageUrl,
-        stockQuantity: raw.stockQuantity ?? undefined,
-    };
-}
-
 export async function fetchFeaturedGear(): Promise<GearDetail[]> {
     try {
         const res = await fetch(`${API}/api/gear?limit=4`, {
@@ -46,7 +33,6 @@ export async function fetchFeaturedGear(): Promise<GearDetail[]> {
         const body = await res.json();
         const raw: RawGear[] = body.data ?? body ?? [];
         return body.data;
-        // return raw.map(mapGearItem);
     } catch {
         return [];
     }
@@ -94,7 +80,7 @@ export async function fetchAllGear(
 
         const total = totalHeader ? Number(totalHeader) : raw.length;
         return {
-            data: raw.map(mapGearItem),
+            data: body.data,
             pagination: {
                 total,
                 page: reqPage,
@@ -121,7 +107,6 @@ export async function fetchGearById(id: string): Promise<GearDetail | null> {
 
         const raw: RawGear = body.data ?? body ?? null;
         if (!raw) return null;
-        const mapped = mapGearItem(raw);
 
         return body.data.gear;
 
