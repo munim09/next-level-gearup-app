@@ -60,7 +60,7 @@ export async function register(
         });
 
         const body = await res.json();
-
+        console.log("reg body: ", body);
         if (!res.ok || !body.success) {
             return {
                 success: false,
@@ -68,10 +68,16 @@ export async function register(
                 errors: body.errors,
                 inputs: { name: name.trim(), email: email.trim(), role },
             };
+        } else {
+            // toast.success("Registration successful");
+            return {
+                success: true,
+                message: "Registration completed",
+                inputs: { name: name.trim(), email: email.trim(), role },
+            };
         }
-
-        redirect("/auth/login");
     } catch (error) {
+        console.log("error");
         if (error instanceof Error) {
             console.error(error.message);
         } else {
@@ -83,6 +89,8 @@ export async function register(
             inputs: { name: name.trim(), email: email.trim(), role },
         };
     }
+    // console.log("redirecting.....'");
+    // redirect("/auth/login");
 }
 
 export async function login(

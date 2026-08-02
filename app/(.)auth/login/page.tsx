@@ -131,7 +131,7 @@ export default function LoginModal() {
                     <Link
                         href="/auth/register"
                         className="text-indigo-600 font-medium hover:underline"
-                        onClick={() => router.back()}
+                        // onClick={() => router.back()}
                     >
                         Sign Up
                     </Link>
