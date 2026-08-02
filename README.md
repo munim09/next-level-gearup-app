@@ -136,7 +136,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | Frontend Route                     | Backend API                       | Notes                |
 |------------------------------------|-----------------------------------|----------------------|
 | `/payment/success/[orderId]`       | `GET /api/payments/:orderId`      | Payment success page |
-| `/payment/cancel/[orderId]`        | `GET /api/payments/:orderId`      | Payment cancel page  |
+| `/payment/cancel/`        		 | 									 | Payment cancel page  |
 
 ## 🗂️ Folder Architecture
 
