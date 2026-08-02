@@ -10,7 +10,6 @@ const AUTH_ROUTES = ["/auth/login", "/auth/register"];
 const PUBLIC_ROUTES = [
     "/",
     "/gear",
-    "/gear/**",
     "/payment/success",
     "/payment/cancel",
     "/providers",
@@ -98,7 +97,8 @@ export async function proxy(request: NextRequest) {
         (route) =>
             pathname === route ||
             pathname.startsWith(route + "/") ||
-            pathname.startsWith("/gear"),
+            pathname.startsWith("/gear") ||
+            pathname.startsWith("/providers"),
     );
 
     const isAuthRoute = AUTH_ROUTES.some(
@@ -112,10 +112,7 @@ export async function proxy(request: NextRequest) {
 
     ///////////////////////
 
-    if (
-        (userRole === "ADMIN" || userRole === "PROVIDER") &&
-        pathname.startsWith("/gear")
-    ) {
+    if ((userRole === "ADMIN" || userRole === "PROVIDER") && isPublicRoute) {
         if (userRole === "ADMIN")
             return NextResponse.redirect(
                 new URL("/dashboard/admin", request.url),
