@@ -2,7 +2,7 @@
 
 > A modern **Next.js** frontend for a sports & outdoor equipment **rental platform**.
 > Customers browse gear and place rental orders, providers manage inventory & orders,
-> and admins oversee users & categories — all backed by a REST API with **Stripe + SSLCommerz** payments.
+> and admins oversee users & categories — all backed by a REST API with **SSLCommerz** payments.
 
 ## ✨ Features
 
@@ -13,23 +13,23 @@
 
 ### 🏪 Provider
 - Role-protected dashboard with gear inventory & stock management
-- Add / edit / delete gear with full CRUD
+- Add / edit / delete gear
 - View & update status of incoming rental orders
 
 ### 🛡️ Admin
-- Role-protected dashboard with platform statistics
+- Role-protected dashboard
 - User management — **activate / suspend** users
 - Category management — **create categories**
 
 ### 💳 Payments
-- **SSLCommerz** (no COD) with success / cancel redirect handling
+- **SSLCommerz** with success / cancel redirect handling
 
 ## 🧱 Tech Stack
 
 | Layer      | Tech |
 |------------|------|
 | Framework  | Next.js (App Router, React) |
-| Styling    | Tailwind CSS v4, shadcn/ui |
+| Styling    | Tailwind CSS, shadcn/ui |
 | Language   | TypeScript |
 | Auth       | JWT (access + refresh), role-based route protection |
 | Notifications | sonner |

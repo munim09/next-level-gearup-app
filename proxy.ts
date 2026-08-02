@@ -110,6 +110,39 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL("/auth/login", request.url));
     }
 
+    ///////////////////////
+
+    if (
+        (userRole === "ADMIN" || userRole === "PROVIDER") &&
+        pathname.startsWith("/gear")
+    ) {
+        if (userRole === "ADMIN")
+            return NextResponse.redirect(
+                new URL("/dashboard/admin", request.url),
+            );
+        else
+            return NextResponse.redirect(
+                new URL("/dashboard/provider", request.url),
+            );
+    }
+
+    if (userRole && isAuthRoute) {
+        if (userRole === "ADMIN")
+            return NextResponse.redirect(
+                new URL("/dashboard/admin", request.url),
+            );
+        else if (userRole === "PROVIDER")
+            return NextResponse.redirect(
+                new URL("/dashboard/provider", request.url),
+            );
+        else
+            return NextResponse.redirect(
+                new URL("/dashboard/customer", request.url),
+            );
+    }
+
+    ///////////////////////
+
     // Authorization : Role based access control
     if (pathname.startsWith("/dashboard/customer") && userRole !== "CUSTOMER") {
         return NextResponse.redirect(new URL("/not-found", request.url));
