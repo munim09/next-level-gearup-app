@@ -1,13 +1,14 @@
 "use client";
 
 import { cancelRentalOrder } from "@/app/_actions/dashboard";
-import type { RentalOrder } from "@/lib/types";
+import type { RentalOrder, Review } from "@/lib/types";
 import { statusBadgeClass } from "@/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import ReviewModal from "./review-modal";
 
 function formatDate(value: string) {
     return new Date(value).toLocaleDateString("en-US", {
@@ -17,13 +18,32 @@ function formatDate(value: string) {
     });
 }
 
+function Stars({ rating }: { rating: number }) {
+    return (
+        <span className="text-amber-400 tracking-tight">
+            {"★".repeat(Math.min(Math.max(rating, 0), 5))}
+            {"☆".repeat(Math.max(5 - Math.min(Math.max(rating, 0), 5), 0))}
+        </span>
+    );
+}
+
 export default function CustomerOrders({
     rentals,
+    reviews = {},
 }: {
     rentals: RentalOrder[];
+    reviews?: Record<string, Review>;
 }) {
     const router = useRouter();
     const [cancellingId, setCancellingId] = useState<string | null>(null);
+    const [reviewTarget, setReviewTarget] = useState<{
+        id: string;
+        name: string;
+        imageUrl: string | null;
+    } | null>(null);
+    const [reviewedGearIds, setReviewedGearIds] = useState<Set<string>>(
+        () => new Set(),
+    );
     const [, startTransition] = useTransition();
 
     function handleCancel(orderId: string) {
@@ -114,6 +134,48 @@ export default function CustomerOrders({
                                             {item.dailyRentalPrice}/day
                                         </p>
                                     </div>
+                                    {order.status === "RETURNED" &&
+                                        reviews[item.gear.id] && (
+                                            <div className="text-xs max-w-[260px]">
+                                                <Stars
+                                                    rating={
+                                                        reviews[item.gear.id]
+                                                            .rating
+                                                    }
+                                                />
+                                                {reviews[item.gear.id]
+                                                    .comment && (
+                                                    <p className="italic text-gray-500 mt-0.5 truncate">
+                                                        &quot;
+                                                        {
+                                                            reviews[
+                                                                item.gear.id
+                                                            ].comment
+                                                        }
+                                                        &quot;
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
+                                    {order.status === "RETURNED" &&
+                                        !reviews[item.gear.id] &&
+                                        !reviewedGearIds.has(
+                                            item.gear.id,
+                                        ) && (
+                                            <button
+                                                onClick={() =>
+                                                    setReviewTarget({
+                                                        id: item.gear.id,
+                                                        name: item.gear.name,
+                                                        imageUrl:
+                                                            item.gear.imageUrl,
+                                                    })
+                                                }
+                                                className="text-xs px-3 py-1.5 rounded-lg font-medium border border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+                                            >
+                                                Review
+                                            </button>
+                                        )}
                                 </div>
                             ))}
                         </div>
@@ -156,6 +218,21 @@ export default function CustomerOrders({
                     </div>
                 </div>
             ))}
+
+            {reviewTarget && (
+                <ReviewModal
+                    key={reviewTarget.id}
+                    gear={reviewTarget}
+                    onClose={() => setReviewTarget(null)}
+                    onSuccess={() => {
+                        setReviewedGearIds((prev) => {
+                            const next = new Set(prev);
+                            next.add(reviewTarget.id);
+                            return next;
+                        });
+                    }}
+                />
+            )}
         </div>
     );
 }

@@ -1,6 +1,9 @@
 "use client";
 
-import { deleteGear } from "@/app/_actions/provider";
+import {
+    deleteGear,
+    updateGearStatus,
+} from "@/app/_actions/provider";
 import type { Category, ProviderGear } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,11 +23,29 @@ export default function ProviderGearList({
     const router = useRouter();
     const [, startTransition] = useTransition();
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [statusGearId, setStatusGearId] = useState<string | null>(null);
     const [editing, setEditing] = useState<ProviderGear | null>(null);
     const [stockGear, setStockGear] = useState<ProviderGear | null>(null);
 
     function openEdit(item: ProviderGear) {
         setEditing(item);
+    }
+
+    function handleToggleStatus(item: ProviderGear) {
+        const nextStatus = item.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+        setStatusGearId(item.id);
+        startTransition(async () => {
+            const result = await updateGearStatus(item.id, nextStatus);
+            setStatusGearId(null);
+            if (result?.success) {
+                toast.success(result.message);
+                router.refresh();
+            } else {
+                toast.error(
+                    result?.message ?? "Failed to update gear status.",
+                );
+            }
+        });
     }
 
     function handleDelete(item: ProviderGear) {
@@ -144,7 +165,7 @@ export default function ProviderGearList({
                                             className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                                                 item.status === "ACTIVE"
                                                     ? "bg-green-100 text-green-700"
-                                                    : "bg-gray-100 text-gray-600"
+                                                    : "bg-amber-100 text-amber-700"
                                             }`}
                                         >
                                             {item.status}
@@ -152,6 +173,25 @@ export default function ProviderGearList({
                                     </td>
                                     <td className="px-5 py-4">
                                         <div className="flex justify-end gap-2">
+                                            <button
+                                                onClick={() =>
+                                                    handleToggleStatus(item)
+                                                }
+                                                disabled={
+                                                    statusGearId === item.id
+                                                }
+                                                className={`text-xs px-3 py-1.5 rounded-lg font-medium border disabled:opacity-60 ${
+                                                    item.status === "ACTIVE"
+                                                        ? "border-amber-200 text-amber-600 hover:bg-amber-50"
+                                                        : "border-green-200 text-green-600 hover:bg-green-50"
+                                                }`}
+                                            >
+                                                {statusGearId === item.id
+                                                    ? "Updating..."
+                                                    : item.status === "ACTIVE"
+                                                      ? "Deactivate"
+                                                      : "Activate"}
+                                            </button>
                                             <button
                                                 onClick={() => openEdit(item)}
                                                 className="text-xs px-3 py-1.5 rounded-lg font-medium border border-indigo-200 text-indigo-600 hover:bg-indigo-50"

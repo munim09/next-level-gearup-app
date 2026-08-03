@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import LoginModal from "./login-modal";
+import OrderSuccessModal from "./order-success-modal";
 
 type CartItem = {
     gearId: string;
@@ -51,6 +52,9 @@ export default function ProviderGearBrowse({
     const [pendingItem, setPendingItem] = useState<ProviderGear | null>(null);
     const [error, setError] = useState("");
     const [isPending, startTransition] = useTransition();
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [rentalStartDate, setRentalStartDate] = useState("");
+    const [rentalEndDate, setRentalEndDate] = useState("");
 
     const router = useRouter();
 
@@ -157,6 +161,20 @@ export default function ProviderGearBrowse({
         [cart],
     );
 
+    const rentalDays = useMemo(() => {
+        if (!rentalStartDate || !rentalEndDate) return 0;
+        const [sy, sm, sd] = rentalStartDate.split("-").map(Number);
+        const [ey, em, ed] = rentalEndDate.split("-").map(Number);
+        const start = new Date(sy, sm - 1, sd);
+        const end = new Date(ey, em - 1, ed);
+        if (end < start) return 0;
+        return (
+            Math.round((end.getTime() - start.getTime()) / 86400000) + 1
+        );
+    }, [rentalStartDate, rentalEndDate]);
+
+    const totalAmount = totalPerDay * rentalDays;
+
     async function handleCheckout(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setError("");
@@ -209,6 +227,7 @@ export default function ProviderGearBrowse({
             toast.success(result?.message ?? "Order placed");
             setCart([]);
             setCheckoutOpen(false);
+            setShowSuccess(true);
         });
     }
 
@@ -486,13 +505,31 @@ export default function ProviderGearBrowse({
                                 ))}
                             </div>
 
-                            <div className="flex items-center justify-between border-t border-dashed pt-4 mb-6">
-                                <span className="text-sm text-gray-500">
-                                    Estimated total / day
-                                </span>
-                                <span className="font-bold text-indigo-700 text-lg">
-                                    ${totalPerDay}
-                                </span>
+                            <div className="border-t border-dashed pt-4 mb-6 space-y-2">
+                                <div className="flex items-center justify-between text-sm text-gray-500">
+                                    <span>Per day</span>
+                                    <span>${totalPerDay.toFixed(2)}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-sm text-gray-500">
+                                    <span>Rental days</span>
+                                    <span>
+                                        {rentalDays
+                                            ? `${rentalDays} day${
+                                                  rentalDays > 1 ? "s" : ""
+                                              }`
+                                            : "—"}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="font-semibold text-gray-700">
+                                        Total amount
+                                    </span>
+                                    <span className="font-bold text-indigo-700 text-lg">
+                                        {rentalDays
+                                            ? `$${totalAmount.toFixed(2)}`
+                                            : "—"}
+                                    </span>
+                                </div>
                             </div>
 
                             <form onSubmit={handleCheckout} className="space-y-5">
@@ -504,6 +541,10 @@ export default function ProviderGearBrowse({
                                         <input
                                             type="date"
                                             name="rentalStartDate"
+                                            value={rentalStartDate}
+                                            onChange={(e) =>
+                                                setRentalStartDate(e.target.value)
+                                            }
                                             min={
                                                 new Date()
                                                     .toISOString()
@@ -520,6 +561,10 @@ export default function ProviderGearBrowse({
                                         <input
                                             type="date"
                                             name="rentalEndDate"
+                                            value={rentalEndDate}
+                                            onChange={(e) =>
+                                                setRentalEndDate(e.target.value)
+                                            }
                                             min={
                                                 new Date()
                                                     .toISOString()
@@ -573,6 +618,10 @@ export default function ProviderGearBrowse({
                         </div>
                     </div>
                 </div>
+            )}
+
+            {showSuccess && (
+                <OrderSuccessModal onClose={() => setShowSuccess(false)} />
             )}
         </>
     );

@@ -176,6 +176,47 @@ export interface Payment {
     rentalOrder: PaymentRentalOrder;
 }
 
+export interface AdminGear extends ProviderGear {
+    provider: {
+        id: string;
+        name: string;
+    };
+}
+
+export interface AdminRentalOrder {
+    id: string;
+    customerId: string;
+    providerId: string;
+    rentalStartDate: string;
+    rentalEndDate: string;
+    totalAmount: string;
+    status: string;
+    note: string | null;
+    createdAt: string;
+    updatedAt: string;
+    customer: {
+        id: string;
+        name: string;
+        email: string;
+    };
+    provider: {
+        id: string;
+        name: string;
+        email: string;
+    };
+    items: RentalOrderItem[];
+}
+
+export interface AdminGearListResponse {
+    data: AdminGear[];
+    pagination: PaginationInfo;
+}
+
+export interface AdminRentalOrderListResponse {
+    data: AdminRentalOrder[];
+    pagination: PaginationInfo;
+}
+
 export interface ProviderGear {
     id: string;
     providerId: string;

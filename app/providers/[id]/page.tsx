@@ -16,7 +16,9 @@ export default async function ProviderGearPage({
     const sp = await searchParams;
     const providerName = typeof sp.name === "string" ? sp.name : "";
 
-    const gear = await fetchProviderPublicGear(id);
+    const gearList = await fetchProviderPublicGear(id);
+
+    const gear = gearList.filter((g) => g.status === "ACTIVE");
 
     if (gear.length === 0 && !providerName) notFound();
 

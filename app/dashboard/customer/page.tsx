@@ -2,10 +2,11 @@ import {
     fetchCustomerPayments,
     fetchCustomerRentals,
 } from "@/app/_actions/dashboard";
+import { fetchReviews } from "@/app/_actions/gear";
 import { verifySession } from "@/app/_actions/session-verify";
 import Footer from "@/app/_components/footer";
 import Navbar from "@/app/_components/navbar";
-import type { RentalOrder } from "@/lib/types";
+import type { RentalOrder, Review } from "@/lib/types";
 import { statusBadgeClass } from "@/utils";
 import { redirect } from "next/navigation";
 import CustomerOrders from "../../_components/customer-orders";
@@ -62,6 +63,34 @@ export default async function CustomerDashboardPage() {
         fetchCustomerRentals(),
         fetchCustomerPayments(),
     ]);
+
+    const userId =
+        typeof session.user?.id === "string"
+            ? session.user.id
+            : typeof session.user?.sub === "string"
+              ? session.user.sub
+              : "";
+
+    const returnedGearIds = [
+        ...new Set(
+            rentals
+                .filter((r) => r.status === "RETURNED")
+                .flatMap((r) => r.items.map((i) => i.gear.id)),
+        ),
+    ];
+
+    const myReviewEntries = await Promise.all(
+        returnedGearIds.map(async (gearId) => {
+            const reviews = await fetchReviews(gearId);
+            const mine = reviews.find((r) => r.customer?.id === userId);
+            return mine ? { gearId, review: mine } : null;
+        }),
+    );
+
+    const reviewsByGear: Record<string, Review> = {};
+    for (const entry of myReviewEntries) {
+        if (entry) reviewsByGear[entry.gearId] = entry.review;
+    }
 
     const activeRentals = rentals.filter((r) =>
         ACTIVE_STATUSES.includes(r.status),
@@ -129,7 +158,10 @@ export default async function CustomerDashboardPage() {
 
                 <section className="mt-10">
                     <h2 className="text-xl font-bold mb-4">My Rentals</h2>
-                    <CustomerOrders rentals={sortedRentals as RentalOrder[]} />
+                    <CustomerOrders
+                        rentals={sortedRentals as RentalOrder[]}
+                        reviews={reviewsByGear}
+                    />
                 </section>
 
                 <section className="mt-10">

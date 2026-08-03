@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import LoginModal from "./login-modal";
+import OrderSuccessModal from "./order-success-modal";
 
 type AuthUser = { name: string; email: string; role: string };
 
@@ -51,6 +52,7 @@ export default function FeaturedGear({ gear }: { gear: GearDetail[] }) {
     } | null>(null);
     const [rentError, setRentError] = useState("");
     const [isPending, startRentTransition] = useTransition();
+    const [showOrderSuccess, setShowOrderSuccess] = useState(false);
 
     useEffect(() => {
         startRentTransition(() => {
@@ -122,6 +124,7 @@ export default function FeaturedGear({ gear }: { gear: GearDetail[] }) {
             }
             toast.success(result?.message ?? "Order placed");
             setRentTarget(null);
+            setShowOrderSuccess(true);
         });
     }
 
@@ -206,6 +209,12 @@ export default function FeaturedGear({ gear }: { gear: GearDetail[] }) {
                         setRentTarget(null);
                     }}
                     onSuccess={onLoginSuccess}
+                />
+            )}
+
+            {showOrderSuccess && (
+                <OrderSuccessModal
+                    onClose={() => setShowOrderSuccess(false)}
                 />
             )}
 

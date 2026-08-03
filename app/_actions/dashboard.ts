@@ -29,7 +29,7 @@ async function authedFetch(path: string, init?: RequestInit) {
 
 export async function fetchCustomerRentals(): Promise<RentalOrder[]> {
     try {
-        const res = await authedFetch("/api/rentals?limit=50");
+        const res = await authedFetch("/api/rentals?limit=500");
         if (!res.ok) return [];
         const body = await res.json();
         return body.data ?? [];
@@ -91,6 +91,30 @@ export async function cancelRentalOrder(orderId: string) {
     return {
         success: true,
         message: body.message || "Order cancelled successfully.",
+    };
+}
+
+export async function submitReview(
+    gearId: string,
+    input: { rating: number; comment: string },
+) {
+    const res = await authedFetch(`/api/reviews/${gearId}`, {
+        method: "POST",
+        body: JSON.stringify(input),
+    });
+
+    const body = await res.json();
+
+    if (!res.ok || !body.success) {
+        return {
+            success: false,
+            message: body.message || "Failed to submit review.",
+        };
+    }
+
+    return {
+        success: true,
+        message: body.message || "Review submitted successfully.",
     };
 }
 

@@ -205,6 +205,7 @@ import { placeRentalOrder } from "@/app/_actions/rentals";
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
+import OrderSuccessModal from "./order-success-modal";
 
 type AuthUser = {
     name: string;
@@ -240,6 +241,7 @@ export default function RentButton({
     const [user, setUser] = useState<AuthUser | null>(null);
     const [open, setOpen] = useState(false);
     const [error, setError] = useState("");
+    const [showSuccess, setShowSuccess] = useState(false);
 
     const [isPending, startTransition] = useTransition();
 
@@ -311,6 +313,7 @@ export default function RentButton({
 
             form.reset();
             setOpen(false);
+            setShowSuccess(true);
         });
     }
 
@@ -460,6 +463,10 @@ export default function RentButton({
                         </form>
                     </div>
                 </div>
+            )}
+
+            {showSuccess && (
+                <OrderSuccessModal onClose={() => setShowSuccess(false)} />
             )}
         </>
     );

@@ -171,6 +171,20 @@ export async function updateGear(gearId: string, input: GearInput) {
     return actionResult(res, response, "Failed to update gear.");
 }
 
+export async function updateGearStatus(gearId: string, status: string) {
+    const res = await authedFetch(`/api/provider/gear/${gearId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+    });
+
+    const response = await res.json();
+
+    if (response.success) {
+        redirect("/dashboard/provider");
+    }
+    return actionResult(res, await res.json(), "Failed to update gear status.");
+}
+
 export async function updateGearStock(gearId: string, stockQuantity: number) {
     const res = await authedFetch(`/api/provider/gear/${gearId}`, {
         method: "PATCH",

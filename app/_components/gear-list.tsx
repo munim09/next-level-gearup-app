@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import LoginModal from "./login-modal";
+import OrderSuccessModal from "./order-success-modal";
 
 type AuthUser = { name: string; email: string; role: string };
 
@@ -95,6 +96,7 @@ export default function GearList({
     } | null>(null);
     const [rentError, setRentError] = useState("");
     const [isPending, startRentTransition] = useTransition();
+    const [showOrderSuccess, setShowOrderSuccess] = useState(false);
 
     useEffect(() => {
         startTransition(() => {
@@ -242,6 +244,7 @@ export default function GearList({
             }
             toast.success(result?.message ?? "Order placed");
             setRentTarget(null);
+            setShowOrderSuccess(true);
         });
     }
 
@@ -303,6 +306,9 @@ export default function GearList({
                                     {item.brand}
                                 </p>
 
+                                <p className="text-green-500 text-sm">
+                                    {item.stockQuantity} available
+                                </p>
                                 <div className="mt-3 flex justify-between items-center">
                                     <span className="font-bold text-indigo-700">
                                         ${item.dailyRentalPrice}/day
@@ -390,6 +396,12 @@ export default function GearList({
                         setRentTarget(null);
                     }}
                     onSuccess={onLoginSuccess}
+                />
+            )}
+
+            {showOrderSuccess && (
+                <OrderSuccessModal
+                    onClose={() => setShowOrderSuccess(false)}
                 />
             )}
 

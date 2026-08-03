@@ -17,12 +17,14 @@ export default function RegisterPage() {
     const router = useRouter();
 
     useEffect(() => {
-        if (state?.success && !redirected) {
+        if (state?.success) {
             startTransition(() => {
                 setRedirected(true);
             });
-            toast.success("registration successful");
-            router.replace("/auth/login");
+            toast.success(
+                "Registration successful. Please click sign-in to sign-in to the account",
+            );
+            // router.replace("/auth/login");
         }
     }, [state]);
 

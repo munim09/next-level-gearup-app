@@ -1,6 +1,13 @@
 "use server";
 
-import type { AdminUser } from "@/lib/types";
+import type {
+    AdminGear,
+    AdminGearListResponse,
+    AdminRentalOrder,
+    AdminRentalOrderListResponse,
+    AdminUser,
+    PaginationInfo,
+} from "@/lib/types";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -25,6 +32,65 @@ async function authedFetch(path: string, init?: RequestInit) {
     });
 
     return res;
+}
+
+const EMPTY_PAGINATION: PaginationInfo = {
+    total: 0,
+    page: 1,
+    limit: 12,
+    totalPages: 0,
+};
+
+async function fetchPaginated<T>(
+    path: string,
+    params?: Record<string, string>,
+): Promise<{ data: T[]; pagination: PaginationInfo }> {
+    try {
+        const qs = params ? "?" + new URLSearchParams(params).toString() : "";
+        const res = await authedFetch(`${path}${qs}`);
+        if (!res.ok) {
+            return { data: [], pagination: EMPTY_PAGINATION };
+        }
+        const body = await res.json();
+        const raw: T[] = body.data ?? body ?? [];
+        const meta = body.meta ?? null;
+        const reqPage = Number(params?.page) || 1;
+        const reqLimit = Number(params?.limit) || 12;
+        const total = meta?.total ?? raw.length;
+        const limit = meta?.limit ?? reqLimit;
+        const totalPages =
+            meta?.totalPage ??
+            meta?.totalPages ??
+            (limit ? Math.ceil(total / limit) : 0);
+
+        return {
+            data: raw,
+            pagination: {
+                total,
+                page: meta?.page ?? reqPage,
+                limit,
+                totalPages,
+            },
+        };
+    } catch (err) {
+        const digest = (err as { digest?: string } | null)?.digest;
+        if (digest?.startsWith("NEXT_REDIRECT")) {
+            throw err;
+        }
+        return { data: [], pagination: EMPTY_PAGINATION };
+    }
+}
+
+export async function fetchAdminGear(
+    params?: Record<string, string>,
+): Promise<AdminGearListResponse> {
+    return fetchPaginated<AdminGear>("/api/admin/gear", params);
+}
+
+export async function fetchAdminRentals(
+    params?: Record<string, string>,
+): Promise<AdminRentalOrderListResponse> {
+    return fetchPaginated<AdminRentalOrder>("/api/admin/rentals", params);
 }
 
 export async function fetchAdminUsers(): Promise<AdminUser[]> {
