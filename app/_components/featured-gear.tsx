@@ -4,7 +4,7 @@ import { placeRentalOrder } from "@/app/_actions/rentals";
 import type { GearDetail } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import LoginModal from "./login-modal";
 import OrderSuccessModal from "./order-success-modal";
@@ -48,11 +48,15 @@ export default function FeaturedGear({ gear }: { gear: GearDetail[] }) {
         gearId: string;
         gearName: string;
         providerName: string;
+        price: number;
         stockQuantity?: number;
     } | null>(null);
     const [rentError, setRentError] = useState("");
     const [isPending, startRentTransition] = useTransition();
     const [showOrderSuccess, setShowOrderSuccess] = useState(false);
+    const [rentalStartDate, setRentalStartDate] = useState("");
+    const [rentalEndDate, setRentalEndDate] = useState("");
+    const [rentQuantity, setRentQuantity] = useState(1);
 
     useEffect(() => {
         startRentTransition(() => {
@@ -70,8 +74,12 @@ export default function FeaturedGear({ gear }: { gear: GearDetail[] }) {
                 gearId: item.id!,
                 gearName: item.name,
                 providerName: item.provider?.name ?? "",
+                price: item.dailyRentalPrice,
                 stockQuantity: item.stockQuantity,
             };
+            setRentalStartDate("");
+            setRentalEndDate("");
+            setRentQuantity(1);
             if (!user) {
                 setRentTarget(target);
                 setShowLogin(true);
@@ -127,6 +135,19 @@ export default function FeaturedGear({ gear }: { gear: GearDetail[] }) {
             setShowOrderSuccess(true);
         });
     }
+
+    const rentalDays = useMemo(() => {
+        if (!rentalStartDate || !rentalEndDate) return 0;
+        const [sy, sm, sd] = rentalStartDate.split("-").map(Number);
+        const [ey, em, ed] = rentalEndDate.split("-").map(Number);
+        const start = new Date(sy, sm - 1, sd);
+        const end = new Date(ey, em - 1, ed);
+        if (end < start) return 0;
+        return Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
+    }, [rentalStartDate, rentalEndDate]);
+
+    const totalPerDay = (rentTarget?.price ?? 0) * rentQuantity;
+    const totalAmount = totalPerDay * rentalDays;
 
     return (
         <>
@@ -254,6 +275,10 @@ export default function FeaturedGear({ gear }: { gear: GearDetail[] }) {
                                 <input
                                     type="date"
                                     name="rentalStartDate"
+                                    value={rentalStartDate}
+                                    onChange={(e) =>
+                                        setRentalStartDate(e.target.value)
+                                    }
                                     min={new Date().toISOString().split("T")[0]}
                                     required
                                     className="w-full rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
@@ -267,6 +292,10 @@ export default function FeaturedGear({ gear }: { gear: GearDetail[] }) {
                                 <input
                                     type="date"
                                     name="rentalEndDate"
+                                    value={rentalEndDate}
+                                    onChange={(e) =>
+                                        setRentalEndDate(e.target.value)
+                                    }
                                     min={new Date().toISOString().split("T")[0]}
                                     required
                                     className="w-full rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
@@ -280,7 +309,10 @@ export default function FeaturedGear({ gear }: { gear: GearDetail[] }) {
                                 <input
                                     type="number"
                                     name="quantity"
-                                    defaultValue={1}
+                                    value={rentQuantity}
+                                    onChange={(e) =>
+                                        setRentQuantity(Number(e.target.value))
+                                    }
                                     min={1}
                                     max={rentTarget.stockQuantity ?? 999}
                                     className="w-full rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
@@ -298,6 +330,33 @@ export default function FeaturedGear({ gear }: { gear: GearDetail[] }) {
                                     placeholder="Need delivery before noon..."
                                     className="w-full resize-none rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
                                 />
+                            </div>
+
+                            <div className="rounded-lg bg-gray-50 p-4 space-y-2 text-sm">
+                                <div className="flex items-center justify-between text-gray-500">
+                                    <span>Per day</span>
+                                    <span>${totalPerDay.toFixed(2)}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-gray-500">
+                                    <span>Rental days</span>
+                                    <span>
+                                        {rentalDays
+                                            ? `${rentalDays} day${
+                                                  rentalDays > 1 ? "s" : ""
+                                              }`
+                                            : "—"}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="font-semibold text-gray-700">
+                                        Total amount
+                                    </span>
+                                    <span className="font-bold text-indigo-700">
+                                        {rentalDays
+                                            ? `$${totalAmount.toFixed(2)}`
+                                            : "—"}
+                                    </span>
+                                </div>
                             </div>
 
                             {rentError && (

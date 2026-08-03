@@ -203,7 +203,7 @@
 
 import { placeRentalOrder } from "@/app/_actions/rentals";
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import OrderSuccessModal from "./order-success-modal";
 
@@ -233,15 +233,20 @@ export default function RentButton({
     gearId,
     inStock,
     stockQuantity,
+    price,
 }: {
     gearId: string;
     inStock: boolean;
     stockQuantity?: number;
+    price: number;
 }) {
     const [user, setUser] = useState<AuthUser | null>(null);
     const [open, setOpen] = useState(false);
     const [error, setError] = useState("");
     const [showSuccess, setShowSuccess] = useState(false);
+    const [rentalStartDate, setRentalStartDate] = useState("");
+    const [rentalEndDate, setRentalEndDate] = useState("");
+    const [rentQuantity, setRentQuantity] = useState(1);
 
     const [isPending, startTransition] = useTransition();
 
@@ -317,6 +322,19 @@ export default function RentButton({
         });
     }
 
+    const rentalDays = useMemo(() => {
+        if (!rentalStartDate || !rentalEndDate) return 0;
+        const [sy, sm, sd] = rentalStartDate.split("-").map(Number);
+        const [ey, em, ed] = rentalEndDate.split("-").map(Number);
+        const start = new Date(sy, sm - 1, sd);
+        const end = new Date(ey, em - 1, ed);
+        if (end < start) return 0;
+        return Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
+    }, [rentalStartDate, rentalEndDate]);
+
+    const totalPerDay = price * rentQuantity;
+    const totalAmount = totalPerDay * rentalDays;
+
     if (!inStock) {
         return (
             <button
@@ -344,6 +362,9 @@ export default function RentButton({
             <button
                 onClick={() => {
                     setError("");
+                    setRentalStartDate("");
+                    setRentalEndDate("");
+                    setRentQuantity(1);
                     setOpen(true);
                 }}
                 className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700"
@@ -382,6 +403,10 @@ export default function RentButton({
                                 <input
                                     type="date"
                                     name="rentalStartDate"
+                                    value={rentalStartDate}
+                                    onChange={(e) =>
+                                        setRentalStartDate(e.target.value)
+                                    }
                                     min={new Date().toISOString().split("T")[0]}
                                     required
                                     className="w-full rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
@@ -396,6 +421,10 @@ export default function RentButton({
                                 <input
                                     type="date"
                                     name="rentalEndDate"
+                                    value={rentalEndDate}
+                                    onChange={(e) =>
+                                        setRentalEndDate(e.target.value)
+                                    }
                                     min={new Date().toISOString().split("T")[0]}
                                     required
                                     className="w-full rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
@@ -410,7 +439,10 @@ export default function RentButton({
                                 <input
                                     type="number"
                                     name="quantity"
-                                    defaultValue={1}
+                                    value={rentQuantity}
+                                    onChange={(e) =>
+                                        setRentQuantity(Number(e.target.value))
+                                    }
                                     min={1}
                                     max={stockQuantity ?? 999}
                                     className="w-full rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
@@ -429,6 +461,33 @@ export default function RentButton({
                                     placeholder="Need delivery before noon..."
                                     className="w-full resize-none rounded-lg border px-3 py-2 focus:border-indigo-500 focus:outline-none"
                                 />
+                            </div>
+
+                            <div className="rounded-lg bg-gray-50 p-4 space-y-2 text-sm">
+                                <div className="flex items-center justify-between text-gray-500">
+                                    <span>Per day</span>
+                                    <span>${totalPerDay.toFixed(2)}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-gray-500">
+                                    <span>Rental days</span>
+                                    <span>
+                                        {rentalDays
+                                            ? `${rentalDays} day${
+                                                  rentalDays > 1 ? "s" : ""
+                                              }`
+                                            : "—"}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="font-semibold text-gray-700">
+                                        Total amount
+                                    </span>
+                                    <span className="font-bold text-indigo-700">
+                                        {rentalDays
+                                            ? `$${totalAmount.toFixed(2)}`
+                                            : "—"}
+                                    </span>
+                                </div>
                             </div>
 
                             {error && (

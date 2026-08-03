@@ -180,6 +180,7 @@ export default async function GearDetailPage({
                                 gearId={gear.id!}
                                 inStock={(gear.stockQuantity ?? 0) > 0}
                                 stockQuantity={gear.stockQuantity}
+                                price={Number(gear.dailyRentalPrice)}
                             />
                         </div>
                     </div>
