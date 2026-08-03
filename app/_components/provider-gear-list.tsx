@@ -1,9 +1,6 @@
 "use client";
 
-import {
-    deleteGear,
-    updateGearStatus,
-} from "@/app/_actions/provider";
+import { deleteGear, updateGearStatus } from "@/app/_actions/provider";
 import type { Category, ProviderGear } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
@@ -41,9 +38,7 @@ export default function ProviderGearList({
                 toast.success(result.message);
                 router.refresh();
             } else {
-                toast.error(
-                    result?.message ?? "Failed to update gear status.",
-                );
+                toast.error(result?.message ?? "Failed to update gear status.");
             }
         });
     }
@@ -137,8 +132,7 @@ export default function ProviderGearList({
                                                 <p className="text-xs text-gray-500 truncate">
                                                     {[item.brand, item.model]
                                                         .filter(Boolean)
-                                                        .join(" · ") ||
-                                                        "—"}
+                                                        .join(" · ") || "—"}
                                                 </p>
                                             </div>
                                         </div>
@@ -199,12 +193,14 @@ export default function ProviderGearList({
                                                 Edit
                                             </button>
                                             <button
-                                                onClick={() => setStockGear(item)}
+                                                onClick={() =>
+                                                    setStockGear(item)
+                                                }
                                                 className="text-xs px-3 py-1.5 rounded-lg font-medium border border-gray-200 text-gray-600 hover:bg-gray-50"
                                             >
                                                 Stock
                                             </button>
-                                            <button
+                                            {/* <button
                                                 onClick={() =>
                                                     handleDelete(item)
                                                 }
@@ -216,7 +212,7 @@ export default function ProviderGearList({
                                                 {deletingId === item.id
                                                     ? "Deleting..."
                                                     : "Delete"}
-                                            </button>
+                                            </button> */}
                                         </div>
                                     </td>
                                 </tr>
