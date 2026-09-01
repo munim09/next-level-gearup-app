@@ -5,7 +5,7 @@
 > and admins oversee users & categories — all backed by a REST API with **SSLCommerz** payments.
 
 ## 📖 Backend
-- Backend API link: **https://github.com/munim09/next-level-gearup**
+- Backend API repo: **https://github.com/munim09/next-level-gearup**
 
 ## ✨ Features
 
